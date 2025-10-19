@@ -1,0 +1,40 @@
+# === General ===
+.DS_Store
+.env
+*.log
+dist/
+build/
+coverage/
+
+# === Node.js (Backend + Frontend) ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# === Vite (Frontend) ===
+frontend/dist/
+frontend/.env
+
+# === Backend ===
+backend/node_modules/
+backend/.env
+backend/.eslintcache
+
+# === Python (AI Microservice) ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+ai-microservice/venv/
+ai-microservice/.env
+
+# === IDE / Editor Config ===
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# === OS Specific ===
+Thumbs.db

@@ -1,24 +1,19 @@
-// src/dtos/user.dto.js
-
 import { z } from 'zod';
 
-// Registration DTO
-export const UserRegisterSchema = z.object({
-  name: z.string().min(2),
+// Signup ke liye validation
+export const SignupSchema = z.object({
+  name: z.string().min(3),
   email: z.string().email(),
   password: z.string().min(6),
-  role: z.enum(['candidate', 'employer', 'admin']).default('candidate'),
+  confirmPassword: z.string().min(6),
+  role: z.enum(['jobseeker', 'employer', 'admin']),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
-// Login DTO
-export const UserLoginSchema = z.object({
+// Login ke liye validation
+export const LoginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
-});
-
-// User Update DTO (all optional)
-export const UserUpdateSchema = z.object({
-  name: z.string().min(2).optional(),
-  password: z.string().min(6).optional(),
-  role: z.enum(['candidate', 'employer', 'admin']).optional(),
 });

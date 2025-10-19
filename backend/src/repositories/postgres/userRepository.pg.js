@@ -1,4 +1,6 @@
-import { User } from '../../models/postgres';
+//import { User } from '../../models/postgres';
+import User from '../../models/postgres/user.model.js';
+
 
 const pgUserRepo = {
   async createUser(data) {

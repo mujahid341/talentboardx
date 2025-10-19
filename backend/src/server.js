@@ -16,7 +16,7 @@ const startServer = async () => {
 
     try {
       await sequelize.sync({ force: false });
-      console.log('✅ PostgreSQL DB synced');
+      console.log('PostgreSQL DB synced');
     } catch (err) {
       console.error('❌ PostgreSQL sync error', err);
       process.exit(1);

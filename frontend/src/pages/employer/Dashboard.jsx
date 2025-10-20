@@ -26,14 +26,20 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      // Simulate API call
-      setTimeout(() => {
-        setStats(mockStats);
-        setJobs(mockJobs);
-        setLoading(false);
-      }, 1000);
+      const { jobs } = await jobService.getAllJobs();
+      setJobs(jobs);
+      // Minimal stats based on jobs; keep UI similar
+      setStats({
+        jobsPosted: jobs.length,
+        applications: 0,
+        avgScore: 0,
+        chartData: [],
+      });
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      setStats(mockStats);
+      setJobs(mockJobs);
       setLoading(false);
     }
   };
@@ -183,7 +189,7 @@ const Dashboard = () => {
                     <td className="py-4 px-4">
                       <div className="flex items-center text-gray-600">
                         <Calendar className="w-4 h-4 mr-1" />
-                        <span className="text-sm">{formatDate(job.postedAt)}</span>
+                        <span className="text-sm">{formatDate(job.createdAt || job.postedAt)}</span>
                       </div>
                     </td>
                     <td className="py-4 px-4">

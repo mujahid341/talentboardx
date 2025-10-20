@@ -15,13 +15,11 @@ const PostJob = () => {
   const [skillInput, setSkillInput] = useState('');
   const [formData, setFormData] = useState({
     title: '',
+    company: '',
     location: '',
-    salaryMin: '',
-    salaryMax: '',
-    experience: '',
     description: '',
     skills: [],
-    jobType: 'full-time',
+    jobType: 'Full-Time',
     workMode: 'remote',
   });
 
@@ -52,7 +50,15 @@ const PostJob = () => {
     setLoading(true);
 
     try {
-      await jobService.createJob(formData);
+      const payload = {
+        title: formData.title,
+        description: formData.description,
+        location: formData.location,
+        jobType: formData.jobType,
+        company: formData.company,
+        skills: formData.skills,
+      };
+      await jobService.createJob(payload);
       alert('Job posted successfully!');
       navigate('/employer/dashboard');
     } catch (error) {
@@ -104,6 +110,16 @@ const PostJob = () => {
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <Input
+                  label="Company"
+                  type="text"
+                  name="company"
+                  placeholder="e.g. JASIQ Labs"
+                  value={formData.company}
+                  onChange={handleChange}
+                  required
+                />
+
                 <Select
                   label="Work Mode"
                   name="workMode"
@@ -128,54 +144,15 @@ const PostJob = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <Input
-                  label="Minimum Salary (₹/month)"
-                  type="number"
-                  name="salaryMin"
-                  placeholder="50000"
-                  value={formData.salaryMin}
-                  onChange={handleChange}
-                  required
-                />
-
-                <Input
-                  label="Maximum Salary (₹/month)"
-                  type="number"
-                  name="salaryMax"
-                  placeholder="80000"
-                  value={formData.salaryMax}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <Select
-                  label="Experience Required"
-                  name="experience"
-                  value={formData.experience}
-                  onChange={handleChange}
-                  options={[
-                    { value: '', label: 'Select Experience' },
-                    { value: 'fresher', label: 'Fresher (0-1 years)' },
-                    { value: '1-2', label: '1-2 years' },
-                    { value: '2-4', label: '2-4 years' },
-                    { value: '4-6', label: '4-6 years' },
-                    { value: '6+', label: '6+ years' },
-                  ]}
-                  required
-                />
-
                 <Select
                   label="Job Type"
                   name="jobType"
                   value={formData.jobType}
                   onChange={handleChange}
                   options={[
-                    { value: 'full-time', label: 'Full-time' },
-                    { value: 'part-time', label: 'Part-time' },
-                    { value: 'contract', label: 'Contract' },
-                    { value: 'internship', label: 'Internship' },
+                    { value: 'Full-Time', label: 'Full-Time' },
+                    { value: 'Part-Time', label: 'Part-Time' },
+                    { value: 'Contract', label: 'Contract' },
                   ]}
                 />
               </div>

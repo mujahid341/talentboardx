@@ -14,11 +14,11 @@ const router = express.Router();
 // Only employer or admin can create a job
 router.post('/', authenticate, authorize('employer', 'admin'), createJob);
 
-// Only employer or admin can view all jobs
-router.get('/', authenticate, authorize('employer', 'admin'), getAllJobs);
+// Public: anyone can view all jobs
+router.get('/', getAllJobs);
 
-// Only employer or admin can view a single job by ID
-router.get('/:id', authenticate, authorize('employer', 'admin'), getJobById);
+// Public: anyone can view a single job by ID
+router.get('/:id', getJobById);
 
 // Only employer or admin can update a job
 router.put('/:id', authenticate, authorize('employer', 'admin'), updateJob);

@@ -156,7 +156,7 @@ const JobDetail = () => {
                   </div>
                   <div className="flex items-center">
                     <Clock className="w-4 h-4 mr-1" />
-                    <span>{formatRelativeTime(job.postedAt)}</span>
+                    <span>{formatRelativeTime(job.createdAt || job.postedAt)}</span>
                   </div>
                 </div>
               </div>
@@ -228,7 +228,7 @@ const JobDetail = () => {
               Key Responsibilities
             </h3>
             <ul className="list-disc list-inside space-y-2 mb-4">
-              {job.responsibilities.map((item, index) => (
+            {(job.responsibilities || []).map((item, index) => (
                 <li key={index}>{item}</li>
               ))}
             </ul>
@@ -237,7 +237,7 @@ const JobDetail = () => {
               Requirements
             </h3>
             <ul className="list-disc list-inside space-y-2">
-              {job.requirements.map((item, index) => (
+              {(job.requirements || []).map((item, index) => (
                 <li key={index}>{item}</li>
               ))}
             </ul>
@@ -248,7 +248,7 @@ const JobDetail = () => {
         <Card>
           <h2 className="text-xl font-bold text-gray-900 mb-4">Skills Required</h2>
           <div className="flex flex-wrap gap-2">
-            {job.skills.map((skill, index) => (
+            {(job.skills || []).map((skill, index) => (
               <Badge key={index} variant="primary" size="lg">
                 {skill}
               </Badge>

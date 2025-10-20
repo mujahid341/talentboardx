@@ -156,18 +156,18 @@ const JobFeed = () => {
                     </div>
                     <div className="flex items-center text-gray-600">
                       <Clock className="w-4 h-4 mr-2" />
-                      <span className="text-sm">{formatRelativeTime(job.postedAt)}</span>
+                      <span className="text-sm">{formatRelativeTime(job.createdAt || job.postedAt)}</span>
                     </div>
                   </div>
 
                   {/* Skills */}
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {job.skills.slice(0, 4).map((skill, index) => (
+                    {(job.skills || []).slice(0, 4).map((skill, index) => (
                       <Badge key={index} variant="gray">
                         {skill}
                       </Badge>
                     ))}
-                    {job.skills.length > 4 && (
+                    {(job.skills || []).length > 4 && (
                       <Badge variant="gray">+{job.skills.length - 4} more</Badge>
                     )}
                   </div>

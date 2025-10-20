@@ -1,29 +1,53 @@
 import api from '../utils/api';
 
+const normalizeJob = (job) => {
+  if (!job) return job;
+  const id = job.id ?? job._id;
+  return {
+    ...job,
+    id,
+    skills: Array.isArray(job.skills) ? job.skills : [],
+  };
+};
+
 export const jobService = {
   getAllJobs: async (params = {}) => {
     const response = await api.get('/jobs', { params });
-    return response.data;
+    const data = response.data;
+    const jobs = Array.isArray(data?.data)
+      ? data.data.map(normalizeJob)
+      : Array.isArray(data?.jobs)
+        ? data.jobs.map(normalizeJob)
+        : Array.isArray(data)
+          ? data.map(normalizeJob)
+          : [];
+    return { jobs };
   },
 
   getJobById: async (id) => {
     const response = await api.get(`/jobs/${id}`);
-    return response.data;
+    const data = response.data;
+    const jobRaw = data?.data ?? data?.job ?? data;
+    return { job: normalizeJob(jobRaw) };
   },
 
   createJob: async (jobData) => {
     const response = await api.post('/jobs', jobData);
-    return response.data;
+    const data = response.data;
+    const jobRaw = data?.data ?? data?.job ?? data;
+    return { job: normalizeJob(jobRaw) };
   },
 
   updateJob: async (id, jobData) => {
     const response = await api.put(`/jobs/${id}`, jobData);
-    return response.data;
+    const data = response.data;
+    const jobRaw = data?.data ?? data?.job ?? data;
+    return { job: normalizeJob(jobRaw) };
   },
 
   deleteJob: async (id) => {
     const response = await api.delete(`/jobs/${id}`);
-    return response.data;
+    return { success: response.status === 200 || response.status === 204 };
   },
 
   applyToJob: async (jobId, applicationData) => {

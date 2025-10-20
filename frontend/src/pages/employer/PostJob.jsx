@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Plus, X, Sparkles } from 'lucide-react';
 import { jobService } from '../../services/jobService';
 import Card from '../../components/ui/Card';
@@ -11,6 +11,7 @@ import Badge from '../../components/ui/Badge';
 
 const PostJob = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [skillInput, setSkillInput] = useState('');
   const [formData, setFormData] = useState({
@@ -22,6 +23,31 @@ const PostJob = () => {
     jobType: 'Full-Time',
     workMode: 'remote',
   });
+
+  useEffect(() => {
+    const loadJob = async () => {
+      if (!id) return;
+      setLoading(true);
+      try {
+        const { job } = await jobService.getJobById(id);
+        setFormData({
+          title: job?.title || '',
+          company: job?.company || '',
+          location: job?.location || '',
+          description: job?.description || '',
+          skills: Array.isArray(job?.skills) ? job.skills : [],
+          jobType: job?.jobType || 'Full-Time',
+          workMode: 'remote',
+        });
+      } catch (e) {
+        console.error('Failed to load job', e);
+        alert('Failed to load job');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadJob();
+  }, [id]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -58,12 +84,17 @@ const PostJob = () => {
         company: formData.company,
         skills: formData.skills,
       };
-      await jobService.createJob(payload);
-      alert('Job posted successfully!');
+      if (id) {
+        await jobService.updateJob(id, payload);
+        alert('Job updated successfully!');
+      } else {
+        await jobService.createJob(payload);
+        alert('Job posted successfully!');
+      }
       navigate('/employer/dashboard');
     } catch (error) {
       console.error('Error posting job:', error);
-      alert('Failed to post job');
+      alert(id ? 'Failed to update job' : 'Failed to post job');
     } finally {
       setLoading(false);
     }
@@ -89,8 +120,8 @@ const PostJob = () => {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Post a New Job</h1>
-          <p className="text-gray-600">Fill in the details to create a job posting</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{id ? 'Edit Job' : 'Post a New Job'}</h1>
+          <p className="text-gray-600">{id ? 'Update your job details' : 'Fill in the details to create a job posting'}</p>
         </div>
 
         {/* Form */}
@@ -250,7 +281,7 @@ const PostJob = () => {
               className="flex-1"
               loading={loading}
             >
-              Post Job
+              {id ? 'Update Job' : 'Post Job'}
             </Button>
           </div>
         </form>

@@ -3,6 +3,7 @@ import {
   Users, Briefcase, TrendingUp, Shield, Lock, Unlock,
   ArrowUpCircle, Flag, CheckCircle, XCircle, Search
 } from 'lucide-react';
+import { jobService } from '../../services/jobService';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
@@ -26,15 +27,21 @@ const AdminDashboard = () => {
   const fetchAdminData = async () => {
     try {
       setLoading(true);
-      // Simulate API call
-      setTimeout(() => {
-        setStats(mockStats);
-        setUsers(mockUsers);
-        setFlaggedJobs(mockFlaggedJobs);
-        setLoading(false);
-      }, 1000);
+      const { jobs } = await jobService.getAllJobs();
+      setStats({
+        totalUsers: mockStats.totalUsers,
+        totalJobs: jobs.length,
+        avgAIScore: mockStats.avgAIScore,
+        flaggedItems: mockStats.flaggedItems,
+      });
+      setUsers(mockUsers);
+      setFlaggedJobs(mockFlaggedJobs);
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching admin data:', error);
+      setStats(mockStats);
+      setUsers(mockUsers);
+      setFlaggedJobs(mockFlaggedJobs);
       setLoading(false);
     }
   };

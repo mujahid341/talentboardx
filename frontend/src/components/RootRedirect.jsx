@@ -10,7 +10,7 @@ const RootRedirect = () => {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   // Redirect based on user role
@@ -22,8 +22,8 @@ const RootRedirect = () => {
     return <Navigate to="/jobs" replace />;
   }
 
-  // Fallback to login if role is not recognized
-  return <Navigate to="/login" replace />;
+  // Fallback to home if role is not recognized
+  return <Navigate to="/home" replace />;
 };
 
 export default RootRedirect;

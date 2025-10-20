@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { jobService } from '../../services/jobService';
-import { resumeService } from '../../services/resumeService';
+// import { resumeService } from '../../services/resumeService';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
@@ -28,16 +28,17 @@ const JobDetail = () => {
 
   useEffect(() => {
     fetchJobDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchJobDetails = async () => {
     try {
       setLoading(true);
       const response = await jobService.getJobById(id);
-      setJob(response.job || mockJob);
+      setJob(response.job || null);
     } catch (error) {
       console.error('Error fetching job:', error);
-      setJob(mockJob);
+      setJob(null);
     } finally {
       setLoading(false);
     }
@@ -383,34 +384,6 @@ const JobDetail = () => {
 };
 
 // Mock data
-const mockJob = {
-  id: 1,
-  title: 'Frontend Developer',
-  company: 'JASIQ Labs',
-  location: 'Remote',
-  salary: 60000,
-  experience: '2+ years',
-  applicants: 34,
-  matchScore: 84,
-  postedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-  description:
-    'We are looking for a talented Frontend Developer to join our growing team. You will be responsible for building beautiful, responsive web applications using modern technologies.',
-  responsibilities: [
-    'Develop new user-facing features using React.js',
-    'Build reusable components and front-end libraries',
-    'Optimize applications for maximum speed and scalability',
-    'Collaborate with backend developers and designers',
-    'Participate in code reviews and team meetings',
-  ],
-  requirements: [
-    '2+ years of experience with React.js',
-    'Strong proficiency in JavaScript, HTML, and CSS',
-    'Experience with Tailwind CSS or similar frameworks',
-    'Understanding of RESTful APIs',
-    'Excellent problem-solving skills',
-    'Good communication and teamwork abilities',
-  ],
-  skills: ['React', 'Tailwind CSS', 'Node.js', 'MongoDB', 'REST API', 'Git'],
-};
+// Removed mockJob to ensure real data display only
 
 export default JobDetail;

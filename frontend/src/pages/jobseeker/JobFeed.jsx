@@ -16,23 +16,44 @@ const JobFeed = () => {
   const [filters, setFilters] = useState({
     search: '',
     location: '',
-    experience: '',
-    sortBy: 'recent',
+    jobType: '',
   });
   const [savedJobs, setSavedJobs] = useState(new Set());
 
   useEffect(() => {
     fetchJobs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   const fetchJobs = async () => {
     try {
       setLoading(true);
-      const response = await jobService.getAllJobs(filters);
-      setJobs(response.jobs || mockJobs);
+      console.log('Fetching jobs with filters:', filters);
+      
+      // Only send non-empty filters to API
+      const apiFilters = {};
+      if (filters.search) apiFilters.search = filters.search;
+      if (filters.location) apiFilters.location = filters.location;
+      if (filters.jobType) apiFilters.jobType = filters.jobType;
+      
+      const response = await jobService.getAllJobs(apiFilters);
+      console.log('API response:', response);
+      
+      // Handle different response formats
+      let jobsData = [];
+      if (response.jobs) {
+        jobsData = response.jobs;
+      } else if (Array.isArray(response)) {
+        jobsData = response;
+      } else if (response.data && Array.isArray(response.data)) {
+        jobsData = response.data;
+      }
+      
+      console.log('Processed jobs data:', jobsData);
+      setJobs(jobsData);
     } catch (error) {
       console.error('Error fetching jobs:', error);
-      setJobs(mockJobs);
+      setJobs([]);
     } finally {
       setLoading(false);
     }
@@ -76,21 +97,22 @@ const JobFeed = () => {
               onChange={handleFilterChange}
               options={[
                 { value: '', label: 'All Locations' },
-                { value: 'remote', label: 'Remote' },
-                { value: 'bangalore', label: 'Bangalore' },
-                { value: 'mumbai', label: 'Mumbai' },
-                { value: 'delhi', label: 'Delhi' },
-                { value: 'hyderabad', label: 'Hyderabad' },
+                { value: 'Remote', label: 'Remote' },
+                { value: 'Bangalore', label: 'Bangalore' },
+                { value: 'Mumbai', label: 'Mumbai' },
+                { value: 'Delhi', label: 'Delhi' },
+                { value: 'Hyderabad', label: 'Hyderabad' },
               ]}
             />
             <Select
-              name="sortBy"
-              value={filters.sortBy}
+              name="jobType"
+              value={filters.jobType}
               onChange={handleFilterChange}
               options={[
-                { value: 'recent', label: 'Most Recent' },
-                { value: 'match', label: 'Best Match' },
-                { value: 'salary', label: 'Highest Salary' },
+                { value: '', label: 'All Job Types' },
+                { value: 'Full-Time', label: 'Full-Time' },
+                { value: 'Part-Time', label: 'Part-Time' },
+                { value: 'Contract', label: 'Contract' },
               ]}
             />
           </div>
@@ -103,11 +125,16 @@ const JobFeed = () => {
           <Loading />
         ) : (
           <>
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {jobs.length} Jobs Found
-              </h2>
-              <p className="text-gray-600 mt-1">Find your perfect opportunity</p>
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {jobs.length} Jobs Found
+                </h2>
+                <p className="text-gray-600 mt-1">Find your perfect opportunity</p>
+              </div>
+              <Button variant="outline" onClick={fetchJobs} disabled={loading}>
+                Refresh
+              </Button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -147,13 +174,15 @@ const JobFeed = () => {
                       <span className="text-sm">{job.location}</span>
                     </div>
                     <div className="flex items-center text-gray-600">
-                      <DollarSign className="w-4 h-4 mr-2" />
-                      <span className="text-sm">{formatSalary(job.salary)}/mo</span>
-                    </div>
-                    <div className="flex items-center text-gray-600">
                       <Briefcase className="w-4 h-4 mr-2" />
-                      <span className="text-sm">{job.experience}</span>
+                      <span className="text-sm">{job.jobType || 'Full-Time'}</span>
                     </div>
+                    {job.salary && (
+                      <div className="flex items-center text-gray-600">
+                        <DollarSign className="w-4 h-4 mr-2" />
+                        <span className="text-sm">{formatSalary(job.salary)}/mo</span>
+                      </div>
+                    )}
                     <div className="flex items-center text-gray-600">
                       <Clock className="w-4 h-4 mr-2" />
                       <span className="text-sm">{formatRelativeTime(job.createdAt || job.postedAt)}</span>
@@ -221,52 +250,6 @@ const JobFeed = () => {
   );
 };
 
-// Mock data for development
-const mockJobs = [
-  {
-    id: 1,
-    title: 'React Developer',
-    company: 'JASIQ Labs',
-    location: 'Remote',
-    salary: 60000,
-    experience: '2+ years',
-    skills: ['React', 'Tailwind CSS', 'Node.js', 'MongoDB'],
-    matchScore: 84,
-    postedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-  },
-  {
-    id: 2,
-    title: 'Frontend Developer',
-    company: 'Tech Innovators',
-    location: 'Bangalore',
-    salary: 55000,
-    experience: '1-3 years',
-    skills: ['React', 'JavaScript', 'CSS', 'REST API'],
-    matchScore: 78,
-    postedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-  },
-  {
-    id: 3,
-    title: 'Full Stack Developer',
-    company: 'Digital Solutions',
-    location: 'Mumbai',
-    salary: 70000,
-    experience: '3+ years',
-    skills: ['React', 'Node.js', 'Express', 'PostgreSQL', 'AWS'],
-    matchScore: 92,
-    postedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-  },
-  {
-    id: 4,
-    title: 'UI/UX Developer',
-    company: 'Creative Studio',
-    location: 'Remote',
-    salary: 50000,
-    experience: '2+ years',
-    skills: ['React', 'Figma', 'Tailwind', 'TypeScript'],
-    matchScore: 71,
-    postedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-  },
-];
+// Removed mock data to ensure only real data is displayed
 
 export default JobFeed;

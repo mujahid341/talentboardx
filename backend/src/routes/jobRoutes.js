@@ -1,3 +1,4 @@
+
 import express from 'express';
 import {
   createJob,
@@ -6,13 +7,23 @@ import {
   updateJob,
   deleteJob,
 } from '../controllers/jobController.js';
+import { authenticate, authorize } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/', createJob);         // POST /jobs
-router.get('/', getAllJobs);         // GET /jobs
-router.get('/:id', getJobById);      // GET /jobs/:id
-router.put('/:id', updateJob);       // PUT /jobs/:id
-router.delete('/:id', deleteJob);    // DELETE /jobs/:id
+// Only employer or admin can create a job
+router.post('/', authenticate, authorize('employer', 'admin'), createJob);
+
+// Only employer or admin can view all jobs
+router.get('/', authenticate, authorize('employer', 'admin'), getAllJobs);
+
+// Only employer or admin can view a single job by ID
+router.get('/:id', authenticate, authorize('employer', 'admin'), getJobById);
+
+// Only employer or admin can update a job
+router.put('/:id', authenticate, authorize('employer', 'admin'), updateJob);
+
+// Only employer or admin can delete a job
+router.delete('/:id', authenticate, authorize('employer', 'admin'), deleteJob);
 
 export default router;

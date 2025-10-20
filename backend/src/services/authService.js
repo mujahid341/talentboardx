@@ -1,12 +1,16 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+dotenv.config();
 
+// Environment variables
 const JWT_SECRET = process.env.JWT_SECRET || 'defaultsecret';
-const EXPIRES_IN = '1d';
+const EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d'; // can override from .env
 
-// Password Hashing
+//Password Hashing
 export const hashPassword = async (plainPassword) => {
-  return await bcrypt.hash(plainPassword, 10);
+  const saltRounds = 10;
+  return await bcrypt.hash(plainPassword, saltRounds);
 };
 
 // Password Comparison
@@ -16,12 +20,29 @@ export const comparePassword = async (input, storedHash) => {
 
 // Token Creation
 export const generateToken = (user) => {
-  return jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: EXPIRES_IN });
+  // Ensure we always include id, role, and email for backend usage
+  const payload = {
+    id: user.id || user._id,
+    role: user.role,
+    email: user.email,
+  };
+
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: EXPIRES_IN });
 };
 
 // Token Verification
 export const verifyToken = (token) => {
-  return jwt.verify(token, JWT_SECRET);
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    // Return a normalized object (useful for postedBy, role checks, etc.)
+    return {
+      id: decoded.id,
+      role: decoded.role,
+      email: decoded.email || null,
+    };
+  } catch (error) {
+    throw new Error('Invalid or expired token');
+  }
 };
 
 // Role Guard Utility

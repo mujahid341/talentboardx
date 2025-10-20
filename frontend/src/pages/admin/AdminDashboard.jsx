@@ -211,8 +211,9 @@ const AdminDashboard = () => {
           <p className="text-gray-600">Manage users, jobs, and platform settings</p>
         </div>
 
+      
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <div className="flex items-center justify-between">
               <div>
@@ -251,20 +252,8 @@ const AdminDashboard = () => {
               </div>
             </div>
           </Card>
-
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Flagged Items</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.flaggedItems}</p>
-                <p className="text-sm text-red-600 mt-1">Needs attention</p>
-              </div>
-              <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                <Flag className="w-6 h-6 text-red-600" />
-              </div>
-            </div>
-          </Card>
         </div>
+
 
         {/* Manage Jobs Quick Actions */}
         <Card className="mb-8">
@@ -425,7 +414,7 @@ const AdminDashboard = () => {
         </Card>
 
         {/* Flagged Jobs */}
-        <Card>
+       {/* <Card>
           <h2 className="text-xl font-bold text-gray-900 mb-6">Flagged Jobs</h2>
 
           {flaggedJobs.length === 0 ? (
@@ -467,7 +456,7 @@ const AdminDashboard = () => {
               ))}
             </div>
           )}
-        </Card>
+        </Card> */}
       </div>
 
       {/* User Detail Modal */}

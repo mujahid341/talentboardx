@@ -113,7 +113,7 @@ const Dashboard = () => {
         </div>
 
         {/* Applications Chart */}
-        <Card className="mb-8">
+        {/*<Card className="mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-6">Applications Over Time</h2>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={stats.chartData}>
@@ -130,7 +130,7 @@ const Dashboard = () => {
               />
             </LineChart>
           </ResponsiveContainer>
-        </Card>
+        </Card> */}
 
         {/* Job Listings */}
         <Card>

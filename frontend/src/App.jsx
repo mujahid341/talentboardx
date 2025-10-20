@@ -11,6 +11,7 @@ import Register from './pages/auth/Register';
 import JobFeed from './pages/jobseeker/JobFeed';
 import JobDetail from './pages/jobseeker/JobDetail';
 import JobSeekerApplications from './pages/jobseeker/Applications';
+import JobSeekerApplicationDetail from './pages/jobseeker/ApplicationDetail';
 
 // Employer Pages
 import EmployerDashboard from './pages/employer/Dashboard';
@@ -54,6 +55,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['jobseeker']}>
                   <JobSeekerApplications />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/applications/:id"
+              element={
+                <ProtectedRoute allowedRoles={['jobseeker']}>
+                  <JobSeekerApplicationDetail />
                 </ProtectedRoute>
               }
             />

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Briefcase, MapPin, Calendar, TrendingUp, Eye } from 'lucide-react';
+import { Briefcase, MapPin, Calendar, TrendingUp, Eye, FileText } from 'lucide-react';
 import { applicationService } from '../../services/applicationService';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
@@ -127,15 +127,22 @@ const Applications = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3">
                     <Badge variant={getStatusBadge(application.status)} size="lg">
                       {(application.status || 'submitted').charAt(0).toUpperCase() + (application.status || 'submitted').slice(1)}
                     </Badge>
-                    <Link to={`/jobs/${application.jobId?._id || application.jobId?.id || application.jobId || application.job?.id}`}>
-                      <Button variant="outline" size="sm" icon={Eye}>
-                        View Job
-                      </Button>
-                    </Link>
+                    <div className="flex gap-2">
+                      <Link to={`/applications/${application.id || application._id}`}>
+                        <Button variant="primary" size="sm" icon={FileText}>
+                          View Application
+                        </Button>
+                      </Link>
+                      <Link to={`/jobs/${application.jobId?._id || application.jobId?.id || application.jobId || application.job?.id}`}>
+                        <Button variant="outline" size="sm" icon={Eye}>
+                          View Job
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </Card>

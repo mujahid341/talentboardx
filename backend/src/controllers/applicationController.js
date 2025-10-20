@@ -4,17 +4,16 @@ import * as applicationService from '../services/applicationService.js';
 export const applyToJob = async (req, res, next) => {
   try {
     const validated = ApplicationCreateSchema.parse(req.body);
-    const resumeFile = req.file;
+    const resume = req.file;
+    if (!resume) throw new Error('Resume file is required');
 
-    if (!resumeFile) throw new Error('Resume file is required');
-
-    const application = await applicationService.applyToJob({
+    const app = await applicationService.applyToJob({
       userId: req.user.id,
       jobId: validated.jobId,
-      resumePath: resumeFile.path,
+      resumePath: resume.path,
     });
 
-    res.status(201).json({ success: true, data: application });
+    res.status(201).json({ success: true, data: app });
   } catch (error) {
     next(error);
   }

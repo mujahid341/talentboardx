@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import jobRoutes from './routes/jobRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import applicationRoutes from './routes/applicationRoutes.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 
 
@@ -14,6 +15,7 @@ app.use(cors());
 app.use(helmet());
 app.use('/api/v1/jobs', jobRoutes);
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/applications', applicationRoutes);
 
 // Global error handler
 app.use(errorHandler);

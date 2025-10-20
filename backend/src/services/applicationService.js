@@ -1,23 +1,25 @@
-import { applicationRepository } from '../repositories/index.js';
+import { applicationRepository, jobRepository } from '../repositories/index.js';
+import { createError } from '../utils/customError.js';
 
-// Create new application
 export const applyToJob = async ({ userId, jobId, resumePath }) => {
+  const job = await jobRepository.getJobById(jobId);
+  if (!job) throw createError('Job not found', 404);
+  if (!job.isActive) throw createError('Job is closed', 400);
+
   return await applicationRepository.createApplication({
-    jobId,
     userId,
+    jobId,
     resumePath,
     status: 'submitted',
-    aiMatchScore: null, // Will be updated by AI later
+    aiMatchScore: null,
     aiFeedback: null,
   });
 };
 
-// Get all applications by user
 export const getApplicationsByUser = async (userId) => {
   return await applicationRepository.findByUser(userId);
 };
 
-// Get application by ID
 export const getApplicationById = async (id) => {
   return await applicationRepository.findById(id);
 };

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { jobService } from '../../services/jobService';
-// import { resumeService } from '../../services/resumeService';
+import { applicationService } from '../../services/applicationService';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
@@ -97,13 +97,16 @@ const JobDetail = () => {
 
     setApplying(true);
     try {
-      await jobService.applyToJob(id, { resume: uploadedFile });
+      await applicationService.applyToJob(id, uploadedFile);
       alert('Application submitted successfully!');
       setShowApplyModal(false);
+      setUploadedFile(null);
+      setAnalysis(null);
       navigate('/applications');
     } catch (error) {
       console.error('Error applying:', error);
-      alert('Failed to submit application');
+      const errorMessage = error.response?.data?.message || 'Failed to submit application';
+      alert(errorMessage);
     } finally {
       setApplying(false);
     }

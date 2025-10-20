@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Briefcase, MapPin, Calendar, TrendingUp, Eye } from 'lucide-react';
-import { jobService } from '../../services/jobService';
+import { applicationService } from '../../services/applicationService';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
@@ -20,24 +20,28 @@ const Applications = () => {
   const fetchApplications = async () => {
     try {
       setLoading(true);
-      const response = await jobService.getMyApplications();
-      setApplications(response.applications || mockApplications);
+      const response = await applicationService.getMyApplications();
+      console.log('Applications response:', response);
+      setApplications(response.applications || []);
     } catch (error) {
       console.error('Error fetching applications:', error);
-      setApplications(mockApplications);
+      setApplications([]);
     } finally {
       setLoading(false);
     }
   };
 
   const getStatusBadge = (status) => {
+    const statusLower = (status || 'submitted').toLowerCase();
     const variants = {
+      submitted: 'warning',
       pending: 'warning',
       reviewing: 'primary',
       shortlisted: 'success',
       rejected: 'danger',
+      accepted: 'success',
     };
-    return variants[status] || 'gray';
+    return variants[statusLower] || 'gray';
   };
 
   const filteredApplications = applications.filter(app => 
@@ -59,7 +63,7 @@ const Applications = () => {
 
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-6">
-          {['all', 'pending', 'reviewing', 'shortlisted', 'rejected'].map((status) => (
+          {['all', 'submitted', 'pending', 'reviewing', 'shortlisted', 'rejected'].map((status) => (
             <Button
               key={status}
               variant={filter === status ? 'primary' : 'outline'}
@@ -96,24 +100,26 @@ const Applications = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                        {application.jobTitle}
+                        {application.jobId?.title || application.job?.title || application.jobTitle || 'Job Title'}
                       </h3>
-                      <p className="text-gray-600 mb-3">{application.company}</p>
+                      <p className="text-gray-600 mb-3">{application.jobId?.company || application.job?.company || application.company || 'Company'}</p>
                       
                       <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                        <div className="flex items-center">
-                          <MapPin className="w-4 h-4 mr-1" />
-                          <span>{application.location}</span>
-                        </div>
+                        {(application.jobId?.location || application.job?.location) && (
+                          <div className="flex items-center">
+                            <MapPin className="w-4 h-4 mr-1" />
+                            <span>{application.jobId?.location || application.job?.location}</span>
+                          </div>
+                        )}
                         <div className="flex items-center">
                           <Calendar className="w-4 h-4 mr-1" />
-                          <span>Applied {formatDate(application.appliedAt)}</span>
+                          <span>Applied {formatDate(application.createdAt || application.appliedAt)}</span>
                         </div>
-                        {application.matchScore && (
+                        {application.aiMatchScore && (
                           <div className="flex items-center">
                             <TrendingUp className="w-4 h-4 mr-1" />
-                            <span className={getMatchScoreColor(application.matchScore)}>
-                              {application.matchScore}% Match
+                            <span className={getMatchScoreColor(application.aiMatchScore)}>
+                              {application.aiMatchScore}% Match
                             </span>
                           </div>
                         )}
@@ -123,9 +129,9 @@ const Applications = () => {
 
                   <div className="flex items-center gap-3">
                     <Badge variant={getStatusBadge(application.status)} size="lg">
-                      {application.status}
+                      {(application.status || 'submitted').charAt(0).toUpperCase() + (application.status || 'submitted').slice(1)}
                     </Badge>
-                    <Link to={`/jobs/${application.jobId}`}>
+                    <Link to={`/jobs/${application.jobId?._id || application.jobId?.id || application.jobId || application.job?.id}`}>
                       <Button variant="outline" size="sm" icon={Eye}>
                         View Job
                       </Button>
@@ -141,38 +147,6 @@ const Applications = () => {
   );
 };
 
-// Mock data
-const mockApplications = [
-  {
-    id: 1,
-    jobId: 1,
-    jobTitle: 'React Developer',
-    company: 'JASIQ Labs',
-    location: 'Remote',
-    status: 'reviewing',
-    matchScore: 84,
-    appliedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-  },
-  {
-    id: 2,
-    jobId: 2,
-    jobTitle: 'Frontend Developer',
-    company: 'Tech Innovators',
-    location: 'Bangalore',
-    status: 'shortlisted',
-    matchScore: 78,
-    appliedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-  },
-  {
-    id: 3,
-    jobId: 3,
-    jobTitle: 'Full Stack Developer',
-    company: 'Digital Solutions',
-    location: 'Mumbai',
-    status: 'pending',
-    matchScore: 92,
-    appliedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-  },
-];
+// Mock data removed - using real API data
 
 export default Applications;

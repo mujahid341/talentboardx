@@ -4,6 +4,8 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import jobRoutes from './routes/jobRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import { errorHandler } from './middlewares/errorHandler.js';
+
 
 dotenv.config();
 const app = express();
@@ -12,4 +14,8 @@ app.use(cors());
 app.use(helmet());
 app.use('/api/v1/jobs', jobRoutes);
 app.use('/api/v1/auth', authRoutes);
+
+// Global error handler
+app.use(errorHandler);
+
 export default app;

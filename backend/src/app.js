@@ -7,9 +7,14 @@ import authRoutes from './routes/authRoutes.js';
 import applicationRoutes from './routes/applicationRoutes.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 
-
 dotenv.config();
 const app = express();
+
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+}));
+
 app.use(express.json());
 app.use(cors());
 app.use(helmet());

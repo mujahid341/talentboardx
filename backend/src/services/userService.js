@@ -1,6 +1,6 @@
 import { userRepository } from '../repositories/index.js';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import { generateToken } from './authService.js';
 
 // Signup logic
 export const signup = async (data) => {
@@ -30,9 +30,7 @@ export const login = async ({ email, password }) => {
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) throw new Error('Invalid credentials');
 
-  const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
-    expiresIn: '1d',
-  });
+  const token = generateToken({ id: user.id, role: user.role, email: user.email });
 
   return token;
 };

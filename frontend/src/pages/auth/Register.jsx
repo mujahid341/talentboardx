@@ -45,8 +45,7 @@ const Register = () => {
     }
 
     try {
-      const { confirmPassword, ...registerData } = formData;
-      const response = await authService.register(registerData);
+      const response = await authService.register(formData);
       login(response.user);
       
       // Redirect based on role

@@ -1,14 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Eye, EyeOff, Briefcase, UserCircle, Building2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { authService } from '../../services/authService';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import Loading from '../../components/ui/Loading';
 
 const Register = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, user, loading: authLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -20,6 +21,19 @@ const Register = () => {
     confirmPassword: '',
     role: 'jobseeker',
   });
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!authLoading && user) {
+      if (user.role === 'admin') {
+        navigate('/admin', { replace: true });
+      } else if (user.role === 'employer') {
+        navigate('/employer/dashboard', { replace: true });
+      } else if (user.role === 'jobseeker') {
+        navigate('/jobs', { replace: true });
+      }
+    }
+  }, [user, authLoading, navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -60,6 +74,11 @@ const Register = () => {
       setLoading(false);
     }
   };
+
+  // Show loading while checking auth status
+  if (authLoading) {
+    return <Loading fullScreen />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex items-center justify-center p-4">

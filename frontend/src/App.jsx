@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import RootRedirect from './components/RootRedirect';
 import MainLayout from './components/layout/MainLayout';
 
 // Auth Pages
@@ -120,9 +121,9 @@ function App() {
             />
           </Route>
 
-          {/* Default Redirect */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          {/* Default Redirect - Smart redirect based on auth status */}
+          <Route path="/" element={<RootRedirect />} />
+          <Route path="*" element={<RootRedirect />} />
         </Routes>
       </Router>
     </AuthProvider>

@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { 
   Users, Briefcase, TrendingUp, Shield, Lock, Unlock,
-  ArrowUpCircle, Flag, CheckCircle, XCircle, Search
+  ArrowUpCircle, Flag, CheckCircle, XCircle, Search, Edit, Trash2, Plus, MapPin, Calendar
 } from 'lucide-react';
 import { jobService } from '../../services/jobService';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import Input from '../../components/ui/Input';
+import Select from '../../components/ui/Select';
+import Textarea from '../../components/ui/Textarea';
 import Loading from '../../components/ui/Loading';
 import Modal from '../../components/ui/Modal';
 
@@ -19,6 +21,21 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
+  // Jobs management state
+  const [jobs, setJobs] = useState([]);
+  const [jobsLoading, setJobsLoading] = useState(false);
+  const [showJobsModal, setShowJobsModal] = useState(false);
+  const [jobsSearch, setJobsSearch] = useState('');
+  const [showJobFormModal, setShowJobFormModal] = useState(false);
+  const [editingJobId, setEditingJobId] = useState(null);
+  const [jobForm, setJobForm] = useState({
+    title: '',
+    company: '',
+    location: '',
+    jobType: 'Full-Time',
+    description: '',
+    skills: [],
+  });
 
   useEffect(() => {
     fetchAdminData();
@@ -36,13 +53,108 @@ const AdminDashboard = () => {
       });
       setUsers(mockUsers);
       setFlaggedJobs(mockFlaggedJobs);
+      setJobs(jobs);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching admin data:', error);
       setStats(mockStats);
       setUsers(mockUsers);
       setFlaggedJobs(mockFlaggedJobs);
+      setJobs([]);
       setLoading(false);
+    }
+  };
+
+  const loadJobs = async () => {
+    try {
+      setJobsLoading(true);
+      const { jobs } = await jobService.getAllJobs(jobsSearch ? { search: jobsSearch } : {});
+      setJobs(jobs);
+    } catch (e) {
+      console.error('Failed to load jobs', e);
+    } finally {
+      setJobsLoading(false);
+    }
+  };
+
+  const openJobsModal = async () => {
+    setShowJobsModal(true);
+    await loadJobs();
+  };
+
+  const resetJobForm = () => {
+    setEditingJobId(null);
+    setJobForm({ title: '', company: '', location: '', jobType: 'Full-Time', description: '', skills: [] });
+  };
+
+  const openCreateJob = () => {
+    resetJobForm();
+    setShowJobFormModal(true);
+  };
+
+  const openEditJob = (job) => {
+    setEditingJobId(job.id);
+    setJobForm({
+      title: job.title || '',
+      company: job.company || '',
+      location: job.location || '',
+      jobType: job.jobType || 'Full-Time',
+      description: job.description || '',
+      skills: Array.isArray(job.skills) ? job.skills : [],
+    });
+    setShowJobFormModal(true);
+  };
+
+  const handleDeleteJob = async (jobId) => {
+    if (!window.confirm('Delete this job?')) return;
+    try {
+      await jobService.deleteJob(jobId);
+      setJobs(jobs.filter(j => j.id !== jobId));
+      setStats(s => ({ ...s, totalJobs: Math.max(0, (s?.totalJobs || 0) - 1) }));
+    } catch (e) {
+      console.error('Failed to delete job', e);
+      alert('Failed to delete job');
+    }
+  };
+
+  const toggleJobActive = async (job) => {
+    try {
+      const { job: updated } = await jobService.updateJob(job.id, { isActive: !job.isActive });
+      setJobs(jobs.map(j => (j.id === job.id ? updated : j)));
+    } catch (e) {
+      console.error('Failed to update job', e);
+      alert('Failed to update job status');
+    }
+  };
+
+  const handleJobFormChange = (e) => {
+    const { name, value } = e.target;
+    setJobForm({ ...jobForm, [name]: value });
+  };
+
+  const handleSkillsInput = (e) => {
+    const value = e.target.value;
+    const parsed = value
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+    setJobForm({ ...jobForm, skills: parsed });
+  };
+
+  const submitJobForm = async () => {
+    try {
+      if (editingJobId) {
+        await jobService.updateJob(editingJobId, jobForm);
+      } else {
+        await jobService.createJob(jobForm);
+        setStats(s => ({ ...s, totalJobs: (s?.totalJobs || 0) + 1 }));
+      }
+      await loadJobs();
+      setShowJobFormModal(false);
+      resetJobForm();
+    } catch (e) {
+      console.error('Failed to save job', e);
+      alert('Failed to save job');
     }
   };
 
@@ -153,6 +265,20 @@ const AdminDashboard = () => {
             </div>
           </Card>
         </div>
+
+        {/* Manage Jobs Quick Actions */}
+        <Card className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 mb-1">Manage Jobs</h2>
+              <p className="text-gray-600">View, create, edit and delete job postings</p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" icon={Plus} onClick={openCreateJob}>New Job</Button>
+              <Button variant="primary" icon={Briefcase} onClick={openJobsModal}>View All Jobs</Button>
+            </div>
+          </div>
+        </Card>
 
         {/* Manage Users */}
         <Card className="mb-8">
@@ -380,6 +506,152 @@ const AdminDashboard = () => {
             </div>
           </div>
         )}
+      </Modal>
+
+      {/* Jobs List Modal */}
+      <Modal
+        isOpen={showJobsModal}
+        onClose={() => setShowJobsModal(false)}
+        title="All Jobs"
+        size="xl"
+      >
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="w-72">
+              <Input
+                type="text"
+                placeholder="Search jobs..."
+                icon={Search}
+                value={jobsSearch}
+                onChange={(e) => setJobsSearch(e.target.value)}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={loadJobs}>Refresh</Button>
+              <Button variant="primary" icon={Plus} onClick={openCreateJob}>New Job</Button>
+            </div>
+          </div>
+
+          {jobsLoading ? (
+            <Loading />
+          ) : jobs.length === 0 ? (
+            <Card className="text-center py-10 text-gray-600">No jobs found</Card>
+          ) : (
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Title</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Company</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Location</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Posted</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Status</th>
+                    <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {jobs.map((job) => (
+                    <tr key={job.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-3 px-4 font-medium text-gray-900">{job.title}</td>
+                      <td className="py-3 px-4 text-gray-700">{job.company}</td>
+                      <td className="py-3 px-4 text-gray-700 flex items-center"><MapPin className="w-4 h-4 mr-1" /> {job.location}</td>
+                      <td className="py-3 px-4 text-gray-700 flex items-center"><Calendar className="w-4 h-4 mr-1" /> {new Date(job.createdAt || job.updatedAt || Date.now()).toLocaleDateString()}</td>
+                      <td className="py-3 px-4">
+                        <Badge variant={job.isActive ? 'success' : 'gray'}>{job.isActive ? 'Active' : 'Inactive'}</Badge>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button variant="outline" size="sm" onClick={() => toggleJobActive(job)}>
+                            {job.isActive ? 'Deactivate' : 'Activate'}
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => openEditJob(job)}>
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button variant="danger" size="sm" onClick={() => handleDeleteJob(job.id)}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Mobile Cards */}
+          <div className="md:hidden space-y-3">
+            {jobs.map((job) => (
+              <Card key={job.id} className="p-4">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{job.title}</h3>
+                    <p className="text-sm text-gray-600">{job.company} • {job.location}</p>
+                  </div>
+                  <Badge variant={job.isActive ? 'success' : 'gray'}>{job.isActive ? 'Active' : 'Inactive'}</Badge>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => toggleJobActive(job)}>
+                    {job.isActive ? 'Deactivate' : 'Activate'}
+                  </Button>
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => openEditJob(job)}>
+                    Edit
+                  </Button>
+                  <Button variant="danger" size="sm" className="flex-1" onClick={() => handleDeleteJob(job.id)}>
+                    Delete
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </Modal>
+
+      {/* Create/Edit Job Modal */}
+      <Modal
+        isOpen={showJobFormModal}
+        onClose={() => setShowJobFormModal(false)}
+        title={editingJobId ? 'Edit Job' : 'Create Job'}
+        size="lg"
+      >
+        <div className="space-y-5">
+          <Input label="Title" name="title" value={jobForm.title} onChange={handleJobFormChange} required />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <Input label="Company" name="company" value={jobForm.company} onChange={handleJobFormChange} required />
+            <Input label="Location" name="location" value={jobForm.location} onChange={handleJobFormChange} required />
+          </div>
+          <Select
+            label="Job Type"
+            name="jobType"
+            value={jobForm.jobType}
+            onChange={handleJobFormChange}
+            options={[
+              { value: 'Full-Time', label: 'Full-Time' },
+              { value: 'Part-Time', label: 'Part-Time' },
+              { value: 'Contract', label: 'Contract' },
+            ]}
+          />
+          <Textarea
+            name="description"
+            value={jobForm.description}
+            onChange={handleJobFormChange}
+            rows={8}
+            placeholder="Describe the role, responsibilities, and requirements"
+          />
+          <Input
+            label="Skills (comma separated)"
+            name="skillsCsv"
+            value={jobForm.skills.join(', ')}
+            onChange={handleSkillsInput}
+            placeholder="e.g. React, Node.js, MongoDB"
+          />
+          <div className="flex gap-3">
+            <Button variant="outline" className="flex-1" onClick={() => { setShowJobFormModal(false); resetJobForm(); }}>Cancel</Button>
+            <Button variant="primary" className="flex-1" onClick={submitJobForm} loading={jobsLoading}>
+              {editingJobId ? 'Update Job' : 'Create Job'}
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

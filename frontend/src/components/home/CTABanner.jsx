@@ -57,19 +57,19 @@ const CTABanner = () => {
             variants={fadeInUp}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Link to="/register">
+            <Link to="/register" className="w-full sm:w-auto">
               <Button 
                 size="lg"
-                className="bg-white text-purple-700 hover:bg-purple-50 shadow-xl hover:shadow-2xl hover:scale-105 transition-all w-full sm:w-auto"
+                className="bg-white !text-purple-700 hover:bg-purple-50 shadow-xl hover:shadow-2xl hover:scale-105 transition-all w-full"
               >
-                Sign Up Now
-                <ArrowRight className="ml-2 w-5 h-5" />
+                <span className="text-purple-700 font-semibold">Sign Up Now</span>
+                <ArrowRight className="ml-2 w-5 h-5 text-purple-700" />
               </Button>
             </Link>
-            <Link to="/register?role=employer">
+            <Link to="/register?role=employer" className="w-full sm:w-auto">
               <Button 
                 size="lg"
-                className="bg-purple-800 text-white hover:bg-purple-900 shadow-xl w-full sm:w-auto"
+                className="bg-purple-800 text-white hover:bg-purple-900 shadow-xl w-full"
               >
                 Post a Job
               </Button>

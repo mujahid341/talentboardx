@@ -55,10 +55,10 @@ const ResumePromoSection = () => {
               <Link to="/register">
                 <Button 
                   size="lg"
-                  className="bg-white text-purple-700 hover:bg-purple-50 shadow-xl"
+                  className="bg-white !text-purple-700 hover:bg-purple-50 shadow-xl"
                 >
-                  <Upload className="mr-2 w-5 h-5" />
-                  Upload Resume
+                  <Upload className="mr-2 w-5 h-5 text-purple-700" />
+                  <span className="text-purple-700 font-semibold">Upload Resume</span>
                 </Button>
               </Link>
             </motion.div>

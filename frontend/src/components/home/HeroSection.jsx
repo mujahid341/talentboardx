@@ -78,20 +78,20 @@ const HeroSection = () => {
               variants={fadeInUp}
               className="flex flex-col sm:flex-row gap-4"
             >
-              <Link to="/register?role=jobseeker">
+              <Link to="/register?role=jobseeker" className="w-full sm:w-auto">
                 <Button 
                   size="lg" 
-                  className="bg-white text-purple-700 hover:bg-purple-50 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all w-full sm:w-auto"
+                  className="bg-white !text-purple-700 hover:bg-purple-50 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all w-full"
                 >
-                  Find Jobs
-                  <ArrowRight className="ml-2 w-5 h-5" />
+                  <span className="text-purple-700 font-semibold">Find Jobs</span>
+                  <ArrowRight className="ml-2 w-5 h-5 text-purple-700" />
                 </Button>
               </Link>
-              <Link to="/register?role=employer">
+              <Link to="/register?role=employer" className="w-full sm:w-auto">
                 <Button 
                   size="lg" 
                   variant="outline"
-                  className="border-2 border-white text-white hover:bg-white/10 backdrop-blur-sm w-full sm:w-auto"
+                  className="border-2 border-white text-white hover:bg-white/10 backdrop-blur-sm w-full"
                 >
                   Post a Job
                 </Button>

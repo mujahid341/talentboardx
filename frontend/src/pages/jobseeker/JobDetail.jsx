@@ -8,11 +8,13 @@ import {
 import { useDropzone } from 'react-dropzone';
 import { jobService } from '../../services/jobService';
 import { applicationService } from '../../services/applicationService';
+import { aiService } from '../../services/aiService';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import Loading from '../../components/ui/Loading';
 import Modal from '../../components/ui/Modal';
+import AiMatchFeedback from '../../components/ui/AiMatchFeedback';
 import { formatSalary, formatRelativeTime, getMatchScoreColor } from '../../utils/helpers';
 
 const JobDetail = () => {
@@ -23,7 +25,8 @@ const JobDetail = () => {
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
-  const [analysis, setAnalysis] = useState(null);
+  const [aiAnalysis, setAiAnalysis] = useState(null);
+  const [analysisError, setAnalysisError] = useState(null);
   const [applying, setApplying] = useState(false);
 
   useEffect(() => {
@@ -49,31 +52,17 @@ const JobDetail = () => {
     if (file) {
       setUploadedFile(file);
       setAnalyzing(true);
+      setAnalysisError(null);
+      setAiAnalysis(null);
       
       try {
-        // Simulate AI analysis
-        setTimeout(() => {
-          setAnalysis({
-            score: 84,
-            strengths: [
-              'Skills matched: React, Tailwind CSS, Node.js',
-              'Strong project portfolio',
-              'Relevant work experience',
-            ],
-            suggestions: [
-              'Add ExpressJS project experience',
-              'Include more details about team collaboration',
-              'Highlight leadership experience',
-            ],
-            weaknesses: [
-              '1.5 years experience < required 2 years',
-              'Missing MongoDB expertise',
-            ],
-          });
-          setAnalyzing(false);
-        }, 2000);
+        // Call AI service to analyze resume
+        const result = await aiService.analyzeResume(file, job);
+        setAiAnalysis(result);
       } catch (error) {
         console.error('Error analyzing resume:', error);
+        setAnalysisError(error.message || 'Failed to analyze resume. You can still submit your application.');
+      } finally {
         setAnalyzing(false);
       }
     }
@@ -101,7 +90,8 @@ const JobDetail = () => {
       alert('Application submitted successfully!');
       setShowApplyModal(false);
       setUploadedFile(null);
-      setAnalysis(null);
+      setAiAnalysis(null);
+      setAnalysisError(null);
       navigate('/applications');
     } catch (error) {
       console.error('Error applying:', error);
@@ -297,68 +287,34 @@ const JobDetail = () => {
             </div>
           </div>
 
-          {/* AI Analysis */}
+          {/* AI Analysis Loading */}
           {analyzing && (
-            <div className="text-center py-8">
-              <div className="spinner mx-auto mb-4"></div>
-              <p className="text-gray-600 font-medium">Analyzing your resume...</p>
+            <div className="text-center py-8 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mb-4"></div>
+              <p className="text-gray-700 font-medium">Analyzing your resume with AI...</p>
+              <p className="text-sm text-gray-600 mt-1">This may take a few moments</p>
             </div>
           )}
 
-          {analysis && (
-            <Card className="bg-gray-50">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">AI Match Score</h3>
-                <div className={`text-3xl font-bold ${getMatchScoreColor(analysis.score)}`}>
-                  {analysis.score}%
+          {/* AI Analysis Error */}
+          {analysisError && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm text-yellow-800 font-medium">AI Analysis Unavailable</p>
+                  <p className="text-sm text-yellow-700 mt-1">{analysisError}</p>
                 </div>
               </div>
+            </div>
+          )}
 
-              {/* Strengths */}
-              <div className="mb-4">
-                <div className="flex items-center text-green-700 font-medium mb-2">
-                  <CheckCircle className="w-5 h-5 mr-2" />
-                  Strengths
-                </div>
-                <ul className="space-y-1">
-                  {analysis.strengths.map((item, index) => (
-                    <li key={index} className="text-sm text-gray-700 pl-7">
-                      • {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Suggestions */}
-              <div className="mb-4">
-                <div className="flex items-center text-yellow-700 font-medium mb-2">
-                  <AlertCircle className="w-5 h-5 mr-2" />
-                  Suggestions
-                </div>
-                <ul className="space-y-1">
-                  {analysis.suggestions.map((item, index) => (
-                    <li key={index} className="text-sm text-gray-700 pl-7">
-                      • {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Weaknesses */}
-              <div>
-                <div className="flex items-center text-red-700 font-medium mb-2">
-                  <XCircle className="w-5 h-5 mr-2" />
-                  Weaknesses
-                </div>
-                <ul className="space-y-1">
-                  {analysis.weaknesses.map((item, index) => (
-                    <li key={index} className="text-sm text-gray-700 pl-7">
-                      • {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </Card>
+          {/* AI Match Feedback Component */}
+          {aiAnalysis && aiAnalysis.aiFeedback && (
+            <AiMatchFeedback
+              aiMatchScore={aiAnalysis.aiMatchScore}
+              aiFeedback={aiAnalysis.aiFeedback}
+            />
           )}
 
           {/* Submit Button */}

@@ -77,8 +77,18 @@ const JobFeed = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Gradient Header */}
+      <div className="bg-gradient-to-r from-[#5B21B6] via-[#7C3AED] to-[#06B6D4] py-12 mb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 className="text-4xl font-bold text-white mb-2">
+            Find Your Dream Job
+          </h1>
+          <p className="text-purple-100 text-lg">Discover opportunities matched to your skills with AI</p>
+        </div>
+      </div>
+
       {/* Search Bar */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+      <div className="bg-white border-b border-gray-200 sticky top-16 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="md:col-span-2">

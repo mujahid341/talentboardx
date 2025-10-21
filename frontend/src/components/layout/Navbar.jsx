@@ -14,8 +14,12 @@ const Navbar = () => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   const handleLogout = () => {
+    // Clear everything first
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
     logout();
-    navigate('/home');
+    // Force reload to home page
+    window.location.href = '/home';
   };
 
   const getDashboardLink = () => {

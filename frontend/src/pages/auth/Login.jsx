@@ -142,12 +142,12 @@ const Login = () => {
         </div>
 
         {/* Demo Credentials */}
-        <div className="mt-6 bg-gray-50 rounded-lg p-4 text-sm text-gray-600">
+       {/* <div className="mt-6 bg-gray-50 rounded-lg p-4 text-sm text-gray-600">
           <p className="font-semibold mb-2">Demo Credentials:</p>
           <p>Job Seeker: jobseeker@demo.com / password123</p>
           <p>Employer: employer@demo.com / password123</p>
           <p>Admin: admin@demo.com / password123</p>
-        </div>
+        </div>*/}
       </div>
     </div>
   );

@@ -61,14 +61,19 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+      {/* Gradient Header */}
+      <div className="bg-gradient-to-r from-[#5B21B6] via-[#7C3AED] to-[#06B6D4] py-12 mb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 className="text-4xl font-bold text-white mb-2">
             Welcome, {user?.name} 👋
           </h1>
-          <p className="text-gray-600">Here's what's happening with your job postings</p>
+          <p className="text-purple-100 text-lg">Here's what's happening with your job postings</p>
         </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        {/* Stats Section */}
+        <div className="mb-8">
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -270,6 +275,7 @@ const Dashboard = () => {
             ))}
           </div>
         </Card>
+      </div>
       </div>
     </div>
   );

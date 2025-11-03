@@ -10,7 +10,9 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import Loading from '../../components/ui/Loading';
+import AiMatchFeedback from '../../components/ui/AiMatchFeedback';
 import { formatDate, formatSalary, getMatchScoreColor } from '../../utils/helpers';
+import { API_BASE_URL } from '../../config/api.config';
 
 const ApplicationDetail = () => {
   const { id } = useParams();
@@ -233,7 +235,7 @@ const ApplicationDetail = () => {
             </div>
             {application.resumePath && (
               <a
-                href={`http://localhost:5000/${application.resumePath}`}
+                href={`${API_BASE_URL}/${application.resumePath}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 download
@@ -260,10 +262,14 @@ const ApplicationDetail = () => {
             <TrendingUp className="w-6 h-6 text-primary" />
             <h2 className="text-xl font-bold text-gray-900">AI Analysis & Feedback</h2>
           </div>
-          {application.aiFeedback ? (
-            <div className="p-4 bg-blue-50 rounded-lg">
-              <p className="text-gray-700 whitespace-pre-wrap">{application.aiFeedback}</p>
-            </div>
+          {application.aiFeedback && application.aiMatchScore ? (
+            <AiMatchFeedback
+              aiMatchScore={application.aiMatchScore}
+              aiFeedback={typeof application.aiFeedback === 'string' 
+                ? { recommendation: application.aiFeedback } 
+                : application.aiFeedback
+              }
+            />
           ) : (
             <div className="p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
               <div className="text-center py-6">

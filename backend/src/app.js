@@ -15,10 +15,23 @@ const __dirname = dirname(__filename);
 dotenv.config({ path: join(__dirname, '.env') });
 const app = express();
 
-//const allowedOrigin = process.env.FRONTEND_URL;
+// Allow both local and deployed frontend
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://talentboardx-frontend.onrender.com'
+];
 
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 

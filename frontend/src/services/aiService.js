@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { AI_API_URL } from '../config/api.config.js';
 
-const AI_API_URL = import.meta.env.VITE_AI_API_URL || 'http://127.0.0.1:8000';
+const AI_BASE_URL = import.meta.env.VITE_AI_API_URL || AI_API_URL;
 
 export const aiService = {
   /**
@@ -25,7 +26,7 @@ export const aiService = {
       
       formData.append('job', JSON.stringify(jobData));
 
-      const response = await axios.post(`${AI_API_URL}/analyze`, formData, {
+      const response = await axios.post(`${AI_BASE_URL}/analyze`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

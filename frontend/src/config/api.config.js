@@ -14,5 +14,11 @@ const API_URLS = {
   production: 'https://talentboardx.onrender.com',
 };
 
+const AI_API_URLS = {
+  local: 'http://127.0.0.1:8000',
+  production: 'https://talentboardx-ai-microservice.onrender.com',
+};
+
 export const API_BASE_URL = API_URLS[BACKEND_MODE];
 export const API_ENDPOINT = `${API_BASE_URL}/api/v1`;
+export const AI_API_URL = AI_API_URLS[BACKEND_MODE];
